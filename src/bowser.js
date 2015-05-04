@@ -19,6 +19,8 @@
     var iosdevice = getFirstMatch(/(ipod|iphone|ipad)/i).toLowerCase()
       , likeAndroid = /like android/i.test(ua)
       , android = !likeAndroid && /android/i.test(ua)
+      , windows = /windows/i.test(ua)
+      , osx = /mac\sos\sx/i.test(ua)
       , versionIdentifier = getFirstMatch(/version\/(\d+(\.\d+)?)/i)
       , tablet = /tablet/i.test(ua)
       , mobile = !tablet && /[^-]mobi/i.test(ua)
@@ -157,12 +159,18 @@
       result.version = result.version || getFirstMatch(/gecko\/(\d+(\.\d+)?)/i)
     }
 
-    // set OS flags for platforms that have multiple browsers
+    // set OS flags for platforms
     if (android || result.silk) {
       result.android = t
+      result.os = 'android'
     } else if (iosdevice) {
       result[iosdevice] = t
       result.ios = t
+      result.os = 'ios'
+    } else if (windows) {
+      result.os = 'windows'
+    } else if (osx) {
+      result.os = 'osx'
     }
 
     // OS version extraction
@@ -182,6 +190,25 @@
       osVersion = getFirstMatch(/bada\/(\d+(\.\d+)*)/i);
     } else if (result.tizen) {
       osVersion = getFirstMatch(/tizen[\/\s](\d+(\.\d+)*)/i);
+    } else if (windows) {
+      var ntValue = getFirstMatch(/windows\snt[\/\s](\d+(\.\d+)*)/i);
+      if (ntValue === '10.0' || ntValue === '6.4') {
+        osVersion = '10'
+      } else if (ntValue === '6.3') {
+        osVersion = '8.1'
+      } else if (ntValue === '6.2') {
+        osVersion = '8'
+      } else if (ntValue === '6.1'){
+        osVersion = '7'
+      } else if (ntValue === '6.0'){
+        osVersion = 'Vista'
+      } else if (ntValue === '5.2'){
+        osVersion = 'Server 2000'
+      } else if (ntValue === '5.1'){
+        osVersion = 'XP'
+      }
+    } else if (osx) {
+      osVersion = getFirstMatch(/mac\sos\sx[\/\s](\d*[_.]\d*([_.]\d*)?)/i);
     }
     if (osVersion) {
       result.osversion = osVersion;
